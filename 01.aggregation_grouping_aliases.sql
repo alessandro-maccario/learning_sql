@@ -81,3 +81,47 @@ ORDER BY total_amount_paid_by_each_customer DESC;
 
 -- QUETION:
 -- 8.Determine the total number of units sold for each product
+
+SELECT productCode, SUM(quantityOrdered) AS n_product_sold
+FROM orderDetails
+GROUP BY productCode
+ORDER BY n_product_sold DESC;
+
+
+-- QUESTION: 
+-- 9.Find the total no. of payments and total payment amount for each customer for payments made before October 28, 2004.
+
+SELECT  customerNumber,
+		COUNT(checkNumber) AS n_of_payment_by_each_customer, 
+        SUM(amount) AS total_amount_paid_by_each_customer
+FROM payments
+WHERE paymentDate < '2004-10-28 00:00:00'
+GROUP BY customerNumber
+ORDER BY total_amount_paid_by_each_customer DESC;
+
+
+-- QUESTION: 
+-- 10.Modify the above query to also show the minimum, maximum and average payment value for each customer.
+
+SELECT  customerNumber,
+		COUNT(checkNumber) AS n_of_payment_by_each_customer, 
+        SUM(amount) AS total_amount_paid_by_each_customer,
+        MIN(amount) AS min_amount_paid_by_each_customer,
+        MAX(amount) AS max_amount_paid_by_each_customer,
+        AVG(amount) AS average_amount_paid_by_each_customer
+FROM payments
+WHERE paymentDate < '2004-10-28 00:00:00'
+GROUP BY customerNumber
+ORDER BY total_amount_paid_by_each_customer DESC;
+
+-- QUESTION: 
+-- 11.Retrieve the customer number for 10 customers who made the highest total payment before October 28, 2004.
+
+SELECT  customerNumber,
+		SUM(amount) AS total_amount_paid_by_each_customer
+FROM payments
+WHERE paymentDate < '2004-10-28 00:00:00'
+GROUP BY customerNumber
+ORDER BY total_amount_paid_by_each_customer DESC
+LIMIT 10
+OFFSET 1;
