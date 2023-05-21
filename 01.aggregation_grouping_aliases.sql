@@ -125,3 +125,55 @@ GROUP BY customerNumber
 ORDER BY total_amount_paid_by_each_customer DESC
 LIMIT 10
 OFFSET 1;
+
+
+-- MAPPING FUNCIONS
+
+-- QUESTION: 
+-- 12. Display the full name of the point of contact each customer in the United States in upper case, 
+-- along with their phone number, sorted by alphabetical order of customer name.
+
+SELECT customerName, CONCAT(UPPER(contactLastName), " ", UPPER(contactFirstName)) AS contactName, phone AS contactPhoneNumber
+FROM customers
+WHERE country = "USA"
+GROUP BY customerNumber
+ORDER BY customerName ASC;
+
+-- QUESTION: 
+-- 13.Display a paginated list of customers (sorted by customer name), with a country code column. 
+-- The country is simply the first 3 letters in the country name, in lower case.
+
+SELECT customerName, LCASE(SUBSTRING(country, 1, 3)) AS countryCode
+FROM customers
+GROUP BY customerNumber
+ORDER BY customerName ASC;
+
+
+-- QUESTION: 
+-- 14. Display the list of the 5 most expensive products in the "Motorcycles" product line with their price (MSRP) rounded to dollars.
+
+SELECT productName, ROUND(MSRP, 0) AS salePrice
+FROM products
+WHERE productLine = "Motorcycles"
+ORDER BY MSRP DESC
+LIMIT 5;
+
+-- Arithmetic Operations
+-- Columns can also be combined using arithmetic operations.
+
+-- QUESTION: 
+-- 15.Display the product code, product name, buy price, sale price and 
+-- profit margin percentage ((MSRP - buyPrice)*100/buyPrice) for the 10 products 
+-- with the highest profit margin. Round the profit margin to 2 decimals.
+
+SELECT  productCode, 
+		productName, 
+        buyPrice, 
+        SUM(MSRP) AS totalProfit, 
+        ROUND((MSRP - buyPrice)*100/buyPrice, 2) AS profitMarginPercentage
+FROM products
+GROUP BY productCode
+ORDER BY profitMarginPercentage DESC
+LIMIT 10;
+
+-- CONTINUE FROM MINUTE 3:12:14
