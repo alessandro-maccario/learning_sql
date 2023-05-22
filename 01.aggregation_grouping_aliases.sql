@@ -176,4 +176,193 @@ GROUP BY productCode
 ORDER BY profitMarginPercentage DESC
 LIMIT 10;
 
--- CONTINUE FROM MINUTE 3:12:14
+-- WORKING WITH DATES
+-- QUESTION: 
+-- 16.List the largest single payment done by every customer in the year 2004, ordered by the transaction value (highest to lowest).
+
+SELECT customerNumber, MAX(amount) AS max_paid
+FROM payments
+WHERE YEAR(paymentDate) = '2004'
+GROUP BY customerNumber
+ORDER BY max_paid DESC;
+
+-- QUESTION: 
+-- 17.Show the total payments received month by month for every year.
+
+SELECT YEAR(paymentDate) AS year_only, MONTH(paymentDate) AS month_only, SUM(amount) as total_payment
+FROM payments
+GROUP BY year_only, month_only
+ORDER BY year_only, month_only ASC;
+
+
+-- QUESTION: 
+-- 18.For the above query, format the amount properly with a dollar 
+-- symbol and comma separation (e.g $26,267.62), and also show the month as a string.
+
+SELECT YEAR(paymentDate) AS year_only, DATE_FORMAT(paymentDate, '%b') AS month_only, CONCAT('$',FORMAT(SUM(amount),2,'en_US')) as total_payment
+FROM payments
+GROUP BY year_only, month_only, MONTH(paymentDate)
+ORDER BY year_only, MONTH(paymentDate) ASC;
+
+
+-- COMBINING TABLES USING JOINS
+
+
+-- QUESTION: 
+-- 19.Show the 10 most recent payments with customer details (name & phone no.).
+
+SELECT payments.checkNumber, payments.paymentDate, payments.amount, customers.customerNumber, customers.customerName, customers.phone
+FROM payments
+INNER JOIN customers ON payments.customerNumber = customers.customerNumber
+ORDER BY payments.paymentDate DESC
+LIMIT 10;
+
+-- QUESTION:
+-- 20.Show the full office address and phone number for each employee.
+
+SELECT  CONCAT(offices.city, ",", offices.addressLine1, ",", offices.state, ",", offices.country) AS full_address, 
+		CONCAT(offices.phone, employees.extension) AS employee_phone, 
+		CONCAT(employees.lastName, " ", employees.firstName) AS employee_name
+FROM offices
+INNER JOIN employees ON offices.officeCode = employees.officeCode;
+
+
+-- QUESTION:
+-- 21.Show the full order information and product details for order no. 10100.
+
+SELECT *
+FROM orderdetails
+INNER JOIN orders ON orders.orderNumber = orderdetails.orderNumber
+INNER JOIN products ON products.productCode = orderdetails.productCode
+WHERE orderdetails.orderNumber = "10100";
+
+
+-- QUESTION: 
+-- 22.Show a list of employees with the name & employee number of their manager.
+
+SELECT E.employeeNumber, CONCAT(E.lastName, " ", E.firstName) AS employee_name, E.reportsTo, CONCAT(M.firstName, " ", M.lastName) AS manager_name
+FROM employees E INNER JOIN employees M ON E.reportsTo = M.employeeNumber;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+
+-- EXERCISES: Try the following exercises to become familiar with SQL joins:
+-- NOTE: Not all of the above may necessarily require joins, and it may be possible to solve some of the above questions without join.
+-- You can find the solutions for these questions here: 
+-- https://github.com/harsha547/ClassicModels-Database-Queries
+
+-- 1. Report the account representative for each customer.
+
+
+
+-- 2. Report total payments for Atelier graphique.
+
+
+
+
+-- 3.Report the total payments by date
+
+
+
+
+
+
+-- 4.Report the products that have not been sold.
+
+
+
+
+
+
+-- 5.List the amount paid by each customer.
+
+
+
+
+
+
+-- 6.How many orders have been placed by Herkku Gifts?
+
+
+
+
+
+
+-- 7.Who are the employees in Boston?
+
+
+
+
+
+
+-- 8.Report those payments greater than $100,000. Sort the report so the customer who made the highest payment appears first.
+
+
+
+
+
+
+-- 9.List the value of 'On Hold' orders.
+
+
+
+
+
+-- 10.Report the number of orders 'On Hold' for each customer.
+
+
+
+
+
+-- 11.List products sold by order date.
+
+
+
+
+
+
+-- 12.List the order dates in descending order for orders for the 1940 Ford Pickup Truck.
+
+
+
+
+
+
+-- 13.List the names of customers and their corresponding order number where a particular order from that customer has a value greater than $25,000?
+
+
+
+
+
+-- 14.Are there any products that appear on all orders?
+
+
+
+
+
+
+-- 15.List the names of products sold at less than 80% of the MSRP.
+
+
+
+
+
+-- 16.Reports those products that have been sold with a markup of 100% or more (i.e., the priceEach is at least twice the buyPrice)
+
+
+
+
+
+
+-- 17.List the products ordered on a Monday.
+
+
+
+
+
+
+-- 18.What is the quantity on hand for products listed on 'On Hold' orders?
+
+
+
