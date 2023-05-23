@@ -252,48 +252,82 @@ FROM employees E INNER JOIN employees M ON E.reportsTo = M.employeeNumber;
 -- You can find the solutions for these questions here: 
 -- https://github.com/harsha547/ClassicModels-Database-Queries
 
+USE classicmodels;
+
 -- 1. Report the account representative for each customer.
 
-
+SELECT customers.customerNumber, customers.customerName, employees.employeeNumber, CONCAT(employees.lastName, " ", firstName) AS account_representative
+FROM customers JOIN employees ON customers.salesRepEmployeeNumber = employees.employeeNumber
+ORDER BY customers.customerName;
 
 -- 2. Report total payments for Atelier graphique.
 
-
+SELECT customers.customerName, SUM(payments.amount) AS total_payment
+FROM customers JOIN payments ON customers.customerNumber = payments.customerNumber
+WHERE customers.customerName = 'Atelier graphique';
 
 
 -- 3.Report the total payments by date
+-- Show the correct format in string, but order based on the value amount
 
-
-
-
+SELECT payments.paymentDate, CONCAT('$',FORMAT(SUM(amount),2,'en_US')) AS total_payments
+FROM payments
+GROUP BY payments.paymentDate
+ORDER BY SUM(amount) DESC;
 
 
 -- 4.Report the products that have not been sold.
 
+-- COMMENT
+-- The idea behind it is the following: when you use WHERE NOT EXISTS
+-- the following code should be equal to FALSE to get a result (or TRUE in case
+-- you use EXISTS).
+-- In this case we are saying: select * from products where the following information
+-- does not exists: namely, where the products.productCode = orderdetails.productCode is equal
+-- to FALSE. It is false, if and only if there is no match between products.productCode = orderdetails.productCode.
 
-
-
+SELECT *
+FROM products
+WHERE NOT EXISTS (SELECT * 
+				  FROM orderdetails
+				  WHERE products.productCode = orderdetails.productCode);
 
 
 -- 5.List the amount paid by each customer.
 
-
-
-
+SELECT Orders.customerNumber, Customers.customerName , CONCAT('$',FORMAT(SUM(OrderDetails.quantityOrdered*OrderDetails.priceEach),2,'en_US')) As 'Amount Paid'
+FROM Customers
+INNER JOIN Orders ON Customers.customerNumber = Orders.customerNumber
+INNER JOIN OrderDetails ON Orders.orderNumber = OrderDetails.orderNumber
+GROUP BY Orders.customerNumber, Customers.customerName
+ORDER BY SUM(OrderDetails.quantityOrdered*OrderDetails.priceEach) DESC;
 
 
 -- 6.How many orders have been placed by Herkku Gifts?
 
-
-
-
+SELECT customers.customerName, SUM(orderdetails.quantityOrdered) AS total_orders
+FROM orderdetails
+JOIN orders ON orders.orderNumber = orderdetails.orderNumber
+JOIN customers ON orders.customerNumber = customers.customerNumber
+WHERE customers.customerName = 'Herkku Gifts'
+GROUP BY customers.customerName;
 
 
 -- 7.Who are the employees in Boston?
 
+-- JOIN solution
+SELECT CONCAT(employees.lastName, " ", employees.firstName) AS employees_name, offices.city
+FROM employees
+JOIN offices ON employees.officeCode = offices.officeCode
+WHERE offices.city = 'Boston';
 
 
-
+-- SUBQUERY solution
+SELECT CONCAT(employees.lastName, " ", employees.firstName) AS employees_name
+FROM employees
+WHERE employees.officeCode IN (SELECT offices.officeCode
+							   FROM offices
+                               WHERE city = 'Boston');                               
 
 
 -- 8.Report those payments greater than $100,000. Sort the report so the customer who made the highest payment appears first.
