@@ -332,41 +332,71 @@ WHERE employees.officeCode IN (SELECT offices.officeCode
 
 -- 8.Report those payments greater than $100,000. Sort the report so the customer who made the highest payment appears first.
 
+SELECT customers.customerName, SUM(amount) AS amount
+FROM payments
+JOIN customers ON customers.customerNumber = payments.customerNumber
+WHERE amount > 100000
+GROUP BY customers.customerName
+ORDER BY customers.customerName DESC;
 
-
-
+-- In order to check the validity, this is a subquery where the result is a list
+-- of DISTINCT customers that paid, in total, more than $100.000 in products.
+SELECT DISTINCT(customers.customerName)
+FROM customers
+WHERE customerNumber IN (SELECT customerNumber
+						 FROM payments
+						 WHERE amount > 100000);
 
 
 -- 9.List the value of 'On Hold' orders.
 
-
-
+SELECT DISTINCT(orders.orderNumber), products.productName
+FROM orders
+JOIN orderdetails ON orderdetails.orderNumber = orders.orderNumber
+JOIN products ON orderdetails.productCode = products.productCode
+WHERE orders.status = 'On Hold';
 
 
 -- 10.Report the number of orders 'On Hold' for each customer.
 
-
-
+SELECT customers.customerName, COUNT(orders.status)
+FROM orders
+JOIN customers ON orders.customerNumber = customers.customerNumber
+WHERE orders.status = 'On Hold'
+GROUP BY customers.customerName;
 
 
 -- 11.List products sold by order date.
 
-
-
-
+SELECT DISTINCT(products.productName), orders.orderDate
+FROM orders
+JOIN orderdetails ON orderdetails.orderNumber = orders.orderNumber
+JOIN products ON orderdetails.productCode = products.productCode
+ORDER BY orderDate;
 
 
 -- 12.List the order dates in descending order for orders for the 1940 Ford Pickup Truck.
 
+SELECT DISTINCT(products.productName), orders.orderDate
+FROM orders
+JOIN orderdetails ON orderdetails.orderNumber = orders.orderNumber
+JOIN products ON orderdetails.productCode = products.productCode
+WHERE productName = '1940 Ford Pickup Truck'
+ORDER BY orderDate DESC;
 
 
 
+-- 13.List the names of customers and their corresponding order number where a particular order from that customer has a value greater than $25,000.
+-- NOTE: check this --> https://www.w3schools.com/sql/sql_having.asp
+-- and REMEMBER: "The HAVING clause was added to SQL because the WHERE keyword cannot be used with aggregate functions."
 
-
--- 13.List the names of customers and their corresponding order number where a particular order from that customer has a value greater than $25,000?
-
-
-
+SELECT customers.customerName, orders.orderNumber, SUM(orderdetails.priceEach * orderdetails.quantityOrdered) AS tot_value
+FROM customers
+JOIN orders ON customers.customerNumber = orders.customerNumber
+JOIN orderdetails ON orders.orderNumber = orderdetails.orderNumber
+GROUP BY customers.customerName, orders.orderNumber
+HAVING tot_value > 25000
+ORDER BY customers.customerName;
 
 
 -- 14.Are there any products that appear on all orders?
@@ -375,15 +405,21 @@ WHERE employees.officeCode IN (SELECT offices.officeCode
 
 
 
-
 -- 15.List the names of products sold at less than 80% of the MSRP.
 
-
-
+SELECT distinct products.productName, products.MSRP
+FROM products
+JOIN orderdetails ON products.productCode = orderdetails.productCode
+WHERE orderdetails.priceEach < (0.8*products.MSRP)
+ORDER BY products.MSRP DESC;
 
 
 -- 16.Reports those products that have been sold with a markup of 100% or more (i.e., the priceEach is at least twice the buyPrice)
 
+SELECT distinct products.productName, 2*(products.buyPrice) AS twice_buy_price, orderdetails.priceEach
+FROM products
+JOIN orderdetails ON products.productCode = orderdetails.productCode
+WHERE orderdetails.priceEach > 2*products.buyPrice;
 
 
 
@@ -391,12 +427,22 @@ WHERE employees.officeCode IN (SELECT offices.officeCode
 
 -- 17.List the products ordered on a Monday.
 
-
-
-
+SELECT products.productName, orders.orderDate, DAYNAME(orders.orderDate) AS dayName
+FROM orders
+JOIN orderdetails ON orders.orderNumber = orderdetails.orderNumber
+JOIN products ON orderdetails.productCode = orderdetails.productCode
+WHERE DAYNAME(orders.orderDate) = 'Monday'
+GROUP BY products.productName, DAYNAME(orders.orderDate), orders.orderDate
+ORDER BY products.productName;
 
 
 -- 18.What is the quantity on hand for products listed on 'On Hold' orders?
 
+SELECT DISTINCT products.productName, products.quantityInStock, orders.status
+FROM orderDetails
+JOIN orders ON orderDetails.orderNumber = orders.orderNumber
+JOIN products ON orderDetails.productCode = products.productCode
+WHERE orders.status = 'On Hold'
+ORDER BY products.quantityInStock DESC;
 
 
