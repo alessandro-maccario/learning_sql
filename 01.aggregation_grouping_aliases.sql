@@ -400,10 +400,25 @@ ORDER BY customers.customerName;
 
 
 -- 14.Are there any products that appear on all orders?
+-- The purpose of this query is to find products that appear on at least one order. 
+-- We want to check if there exists an order (innermost subquery) that has an 
+-- associated order detail for a specific product. 
+-- Then, we check if there exists at least one such order for each product (outer subquery).
 
+-- TOTALLY NOT SURE ABOUT THIS
 
-
-
+SELECT products.productName
+FROM products
+WHERE EXISTS (
+    SELECT orders.orderNumber
+    FROM orders
+    WHERE EXISTS (
+        SELECT orderdetails.orderNumber
+        FROM orderdetails
+        WHERE orderdetails.orderNumber = orders.orderNumber
+        AND orderdetails.productCode = products.productCode
+    )
+);
 
 -- 15.List the names of products sold at less than 80% of the MSRP.
 
